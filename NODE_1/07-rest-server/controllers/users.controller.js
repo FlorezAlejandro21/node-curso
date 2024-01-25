@@ -1,33 +1,66 @@
 import { response } from "express";
+import bcryptjs from "bcryptjs";
+import { usuario as Usuario } from "../models/usuario.js";
 
-const usuariosGET = (req, res = response) => {
-  const query = req.query;
+const usuariosGET = async (req, res = response) => {
+  const isUserActive = {
+    estado: true,
+  };
+  const { limite = 5, desde = 0 } = req.query;
+  // const usuarios = await Usuario.find(isUserActive)
+  //   .skip(Number(desde))
+  //   .limit(Number(limite));
+
+  // const count = await Usuario.countDocuments(isUserActive);
+
+  const [total, usuarios] = await Promise.all([
+    Usuario.countDocuments(isUserActive),
+    Usuario.find(isUserActive).skip(Number(desde)).limit(Number(limite)),
+  ]);
   res.json({
-    msg: "Response GET of /api from controller",
-    query
+    total,
+    usuarios,
   });
 };
 
-const usuariosPOST = (req, res = response) => {
-  const body = req.body;
+const usuariosPOST = async (req, res = response) => {
+  const { nombre, correo, password, rol } = req.body;
+  const usuario = new Usuario({ nombre, correo, password, rol });
+
+  const salt = bcryptjs.genSaltSync();
+  usuario.password = bcryptjs.hashSync(password, salt);
+
+  await usuario.save();
   res.json({
-    msg: "Response POST of /api from controller",
-    data: body,
+    data: usuario,
   });
 };
 
-const usuariosPUT = (req, res = response) => {
+const usuariosPUT = async (req, res = response) => {
   const { id } = req.params;
+  const { _id, password, google, correo, ...user } = req.body;
+
+  if (password) {
+    const salt = bcryptjs.genSaltSync();
+    user.password = bcryptjs.hashSync(password, salt);
+  }
+
+  const usuario = await Usuario.findByIdAndUpdate(id, user);
+
   res.json({
     msg: "Response PUT of /api from controller",
     id,
   });
 };
 
-const usuariosDELETE = (req, res = response) => {
+const usuariosDELETE = async (req, res = response) => {
+  const { id } = req.params;
+  const userAuth = req.user;
+  // const usuario = await Usuario.findByIdAndDelete(id);
+  const usuario = await Usuario.findByIdAndUpdate(id, { estado: false });
   res.json({
-    ok: true,
-    msg: "Response DELETE of /api from controller",
+    usuario,
+    userAuth,
   });
 };
 export { usuariosGET, usuariosPOST, usuariosPUT, usuariosDELETE };
