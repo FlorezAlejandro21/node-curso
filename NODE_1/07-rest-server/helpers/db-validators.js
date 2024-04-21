@@ -1,5 +1,8 @@
 import { role as Role } from "../models/role.js";
 import { usuario as Usuario } from "../models/usuario.js";
+import { categoria as Categoria } from "../models/categoria.js";
+import { producto as Producto } from "../models/producto.js";
+
 
 export const isValidRole = async (rol = "") => {
   const existeRol = await Role.findOne({ rol });
@@ -21,3 +24,22 @@ export const existUserById = async (id) => {
     throw new Error(`El usuario con '${id}', no esxite en la DB`);
   }
 };
+
+export const existCategoriaById = async (id) => {
+  const existCategoria = await Categoria.findById(id);
+  if (!existCategoria) {
+    throw new Error(`La categoria con '${id}', no esxite en la DB`);
+  }
+};
+
+/**
+ * Productos
+ */
+export const existProductoById = async( id ) => {
+
+  // Verificar si el correo existe
+  const existeProducto = await Producto.findById(id);
+  if ( !existeProducto ) {
+      throw new Error(`El id no existe ${ id }`);
+  }
+}

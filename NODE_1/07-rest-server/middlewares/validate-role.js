@@ -1,6 +1,6 @@
 import { request, response } from "express";
 
-export const idAdminRole = (req = request, res = response, next) => {
+export const isAdminRole = (req = request, res = response, next) => {
   if (!req.user) {
     return res.status(500).json({
       msg: "Quiere validar el user sin el token",
