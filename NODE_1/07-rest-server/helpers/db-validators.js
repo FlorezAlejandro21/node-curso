@@ -3,7 +3,6 @@ import { usuario as Usuario } from "../models/usuario.js";
 import { categoria as Categoria } from "../models/categoria.js";
 import { producto as Producto } from "../models/producto.js";
 
-
 export const isValidRole = async (rol = "") => {
   const existeRol = await Role.findOne({ rol });
   if (!existeRol) {
@@ -35,11 +34,18 @@ export const existCategoriaById = async (id) => {
 /**
  * Productos
  */
-export const existProductoById = async( id ) => {
-
+export const existProductoById = async (id) => {
   // Verificar si el correo existe
   const existeProducto = await Producto.findById(id);
-  if ( !existeProducto ) {
-      throw new Error(`El id no existe ${ id }`);
+  if (!existeProducto) {
+    throw new Error(`El id no existe ${id}`);
   }
-}
+};
+
+export const coleccionesPermitidas = (coleccion = "", colecciones = []) => {
+  const incluida = colecciones.includes(coleccion);
+  if (!incluida) {
+    throw new Error(`La coleccion ${coleccion} no es valida`);
+  }
+  return true;
+};
